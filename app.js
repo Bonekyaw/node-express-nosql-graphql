@@ -1,6 +1,10 @@
 require("dotenv").config();
 const express = require("express");
 // const bodyParser = require('body-parser');
+const helmet = require('helmet');
+const compression = require('compression');
+const cors = require('cors');
+const rateLimit = require("express-rate-limit");
 const mongoose = require("mongoose");
 const { createHandler } = require("graphql-http/lib/use/express");
 const { ruruHTML } = require("ruru/server");
@@ -17,8 +21,24 @@ const { GraphQLFileLoader } = require("@graphql-tools/graphql-file-loader");
 
 const app = express();
 
+app.use(helmet());
+
 app.use(express.json()); // application/json
 // app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(compression());
+app.use(cors());
+// app.options("*", cors());
+
+const limiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minutes
+  limit: 15,    // Limit each IP to 15 requests per `window` (here, per 1 minutes).
+  standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+  // skipSuccessfulRequests: true,      // This is useful for auth check. If request is successful, it never limit.
+});
+app.use(limiter);
 
 const typeDefs = loadSchemaSync("./**/**/*.graphql", {
   loaders: [new GraphQLFileLoader()],
