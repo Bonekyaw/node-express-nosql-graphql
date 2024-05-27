@@ -19,7 +19,7 @@ const {
   validatePhone,
   checkOtpErrorIfSameDate,
   checkOtpPhone,
-} = require("../../middlewares/check");
+} = require("../../utils/check");
 
 const rand = () => Math.random().toString(36).substring(2);
 
@@ -277,7 +277,9 @@ module.exports = {
 
       // jwt token
       let payload = { id: newAdmin._id };
-      const jwtToken = jwt.sign(payload, process.env.TOKEN_SECRET);
+      const jwtToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
+        expiresIn: "1h",
+      });
 
       return {
         message: "Successfully created an account.",
@@ -357,7 +359,9 @@ module.exports = {
       }
 
       let payload = { id: admin._id };
-      const jwtToken = jwt.sign(payload, process.env.TOKEN_SECRET);
+      const jwtToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
+        expiresIn: "1h",
+      });
 
       return {
         message: "Successfully Logged In.",
@@ -366,6 +370,8 @@ module.exports = {
         userId: admin._id,
       };
     }),
+
+    //
   },
 };
 

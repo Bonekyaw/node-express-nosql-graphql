@@ -36,6 +36,9 @@ const adminSchema = new Schema(
       min: 0,
       max: 3,
     },
+    profile: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
