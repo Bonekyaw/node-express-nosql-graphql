@@ -24,12 +24,14 @@ exports.uploadProfile = asyncHandler(async (req, res, next) => {
         path.join(__dirname, "..", validator.unescape(admin.profile))
       ); // Delete an old profile image because it accepts just one.
     } catch (error) {
-      res
-        .status(200)
-        .json({
-          message: "Successfully uploaded the image.",
-          profile: imageUrl,
-        });
+      //   await unlink(
+      //     path.join(__dirname, "..", imageUrl)
+      //   ); // Delete an current uploaded profile image unless it continues to call upload graphql api.
+      res.status(200).json({
+        message: "Successfully uploaded the image.",
+        profile: imageUrl,
+      });
+      return;
     }
   }
 
