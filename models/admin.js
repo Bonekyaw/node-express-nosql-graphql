@@ -39,6 +39,10 @@ const adminSchema = new Schema(
     profile: {
       type: String,
     },
+    randToken: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );

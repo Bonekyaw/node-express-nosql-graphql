@@ -19,6 +19,7 @@ const {
   validatePhone,
   checkOtpErrorIfSameDate,
   checkOtpPhone,
+  checkAdminExist,
 } = require("../../utils/check");
 
 const rand = () => Math.random().toString(36).substring(2);
@@ -268,10 +269,12 @@ module.exports = {
 
       const salt = await bcrypt.genSalt(10);
       const hashPassword = await bcrypt.hash(password, salt);
+      const randomToken = rand() + rand() + rand();
 
       const newAdmin = new Admin({
         phone: phone,
         password: hashPassword,
+        randToken: randomToken,
       });
       await newAdmin.save();
 
@@ -286,6 +289,7 @@ module.exports = {
         token: jwtToken,
         phone: phone,
         userId: newAdmin._id,
+        randomToken: randomToken,
       };
     }),
 
@@ -353,8 +357,14 @@ module.exports = {
         });
       }
 
+      const randomToken = rand() + rand() + rand();
+
       if (admin.error >= 1) {
         admin.error = 0;
+        admin.randToken = randomToken;
+        await admin.save();
+      } else {
+        admin.randToken = randomToken;
         await admin.save();
       }
 
@@ -368,9 +378,64 @@ module.exports = {
         token: jwtToken,
         phone: phone,
         userId: admin._id,
+        randomToken: randomToken,
       };
     }),
 
+    refreshToken: asyncHandler(async (parent, args, context, info) => {
+      checkAdminExist(context.authHeader);
+      const { userId, randomToken } = args.userInput;
+
+      // Start validation
+      if (
+        validator.isEmpty(userId.trim()) ||
+        validator.isEmpty(randomToken.trim())
+      ) {
+        throw new GraphQLError("User input is invalid.", {
+          extensions: {
+            code: "BAD REQUEST",
+            http: { status: 400 },
+          },
+        });
+      }
+      // End Validation
+
+      const admin = await Admin.findById(userId);
+      checkAdminExist(admin);
+
+      if (admin.randToken !== randomToken) {
+        admin.error = 3;
+        await admin.save();
+
+        throw new GraphQLError(
+          "This request may be an attack. Please contact the admin team.",
+          {
+            extensions: {
+              code: "BAD REQUEST",
+              http: { status: 400 },
+            },
+          }
+        );
+      }
+
+      const randToken = rand() + rand() + rand();
+
+      admin.randToken = randToken;
+      await admin.save();
+
+      // jwt token
+      let payload = { id: userId };
+      const jwtToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
+        expiresIn: "1h",
+      });
+
+      return {
+        message: "Successfully sent a new token.",
+        token: jwtToken,
+        userId: userId,
+        randomToken: randToken,
+      };
+    }),
     //
   },
 };
