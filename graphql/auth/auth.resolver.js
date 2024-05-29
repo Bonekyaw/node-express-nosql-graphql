@@ -384,11 +384,12 @@ module.exports = {
 
     refreshToken: asyncHandler(async (parent, args, context, info) => {
       checkAdminExist(context.authHeader);
-      const { userId, randomToken } = args.userInput;
+      const randomToken = args.userInput.randomToken;
+      const userId = args.userInput.userId;
 
       // Start validation
       if (
-        validator.isEmpty(userId.trim()) ||
+        !validator.isAlphanumeric(userId) ||
         validator.isEmpty(randomToken.trim())
       ) {
         throw new GraphQLError("User input is invalid.", {
@@ -399,7 +400,7 @@ module.exports = {
         });
       }
       // End Validation
-
+      // userId = validator.escape(userId);
       const admin = await Admin.findById(userId);
       checkAdminExist(admin);
 
