@@ -16,6 +16,7 @@ const { GraphQLFileLoader } = require("@graphql-tools/graphql-file-loader");
 
 const limiter = require("./utils/rateLimiter");
 const isAuth = require("./middlewares/isAuth");
+const authorise = require("./middlewares/authorise");
 const fileRoute = require("./routes/v1/file");
 
 // const schema = require('./graphql/schema');
@@ -70,7 +71,7 @@ app.get("/", (_req, res) => {
 // seperating file upload from graphql api.
 // This approach leverages the strengths of both REST and GraphQL
 // and can simplify the file upload process.
-app.use("/api/v1", isAuth, fileRoute);
+app.use("/api/v1", isAuth, authorise(false, "user"), fileRoute);
 
 mongoose
   .connect(process.env.MONGO_URI) // Localhost - "mongodb://127.0.0.1/lucky"

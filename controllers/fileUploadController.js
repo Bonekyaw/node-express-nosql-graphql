@@ -3,18 +3,15 @@ const { unlink } = require("node:fs/promises");
 const path = require("path");
 const validator = require("validator");
 
-const Admin = require("../models/admin");
+// const Admin = require("../models/admin");
 
-const { checkAdmin, checkUploadFile } = require("./../utils/check");
+const { checkUploadFile } = require("./../utils/check");
 
 exports.uploadProfile = asyncHandler(async (req, res, next) => {
-  // const id = req.params.id;
-  const id = req.adminId;
   const image = req.file;
   // console.log("Multiple Images array", req.files);  // For multiple files uploaded
 
-  const admin = await Admin.findById(id);
-  checkAdmin(admin);
+  const admin = req.admin;
   checkUploadFile(image);
   const imageUrl = image.path.replace("\\", "/");
 
