@@ -11,13 +11,13 @@ exports.offset = async (
   limit = 10,
   filters,
   sort,
-  lookup_1
+  lookup_1 
 ) => {
   const offset = (page - 1) * limit;
 
   let options = [];
   if (sort) {
-    options = [...options, { $sort: sort }];
+    options = [{ $sort: sort }];
   }
   options = [...options, { $skip: offset }, { $limit: limit }];
 
@@ -32,7 +32,7 @@ exports.offset = async (
 
   let aggregatePipeline = [];
   if (filters) {
-    aggregatePipeline = [...aggregatePipeline, { $match: filters }];
+    aggregatePipeline = [{ $match: filters }];
   }
 
   aggregatePipeline = [
@@ -41,6 +41,7 @@ exports.offset = async (
   ];
 
   try {
+    console.log("Hey -------------");
     const results = await model.aggregate(aggregatePipeline);
     const collections = results[0]?.data || [];
     const count = results[0]?.totalCount[0]?.count || 0;
@@ -77,7 +78,7 @@ exports.noCount = async (
   const offset = (page - 1) * limit;
 
   // collections = await model
-  //   .find(filters, fields, { skip: offset, limit: limit })
+  //   .find(filters,{ skip: offset, limit: limit })
   //   .exec();
   try {
     const collections = populate

@@ -51,8 +51,8 @@ const resolvers = {
       const filters = {
         status: "active",
       };
-      // const sort = { createdAt: -1 };
-      const sort = "-createdAt";
+      const sort = { createdAt: -1 };   // offset
+      // const sort = "-createdAt";     // error will be in offset
 
       return offset(Admin, page, limit, filters, sort);
       // return noCount(
