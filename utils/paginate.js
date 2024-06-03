@@ -41,7 +41,6 @@ exports.offset = async (
   ];
 
   try {
-    console.log("Hey -------------");
     const results = await model.aggregate(aggregatePipeline);
     const collections = results[0]?.data || [];
     const count = results[0]?.totalCount[0]?.count || 0;
